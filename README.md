@@ -168,7 +168,7 @@ for a list of proposed features (and known issues).
 - [x] generate the changelog with a template
 - [x] group by type and scope
 - [ ] properly handle rc version
-- [ ] properly handle revert commit
+- [x] properly handle revert commit
 - [ ] allow hiding some types
 
 <!-- CONTRIBUTING -->

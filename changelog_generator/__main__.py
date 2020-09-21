@@ -42,9 +42,17 @@ def main() -> None:
     if len(fixes.commits):
         trees.append(fixes)
 
+    reverts = CommitTree()
+    reverts.type = ":scream: Revert"
+    reverts.commits = getCommitFromType(commits, "revert")
+    if len(reverts.commits):
+        trees.append(reverts)
+
     others = CommitTree()
     others.type = ":nut_and_bolt: Others"
-    others.commits = getCommitButTypes(commits, ["documentations", "feat", "fix"])
+    others.commits = getCommitButTypes(
+        commits, ["documentations", "feat", "fix", "revert"]
+    )
     if len(others.commits):
         trees.append(others)
 

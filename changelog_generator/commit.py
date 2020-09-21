@@ -33,16 +33,30 @@ class Commit:
             self.type = res.group("type")
             self.scope = res.group("scope")
             self.subject = res.group("subject")
+        else:
+            self.type = "unknown"
+            self.scope = "any"
+            self.subject = self.summary
 
     def getRevertData(self) -> None:
         self.revert = None
 
         res = re_revert_header_pattern.match(self.summary)
         if res:
+            self.type = "revert"
+
             # TODO: properly fetch the reverted commit */
             self.revert = Commit(
                 hexsha="", summary=res.group("summary"), message=res.group("summary")
             )
+
+            summary_res = re_header_pattern.match(res.group("summary"))
+            if summary_res:
+                self.scope = summary_res.group("scope")
+                self.subject = "revert %s" % summary_res.group("subject")
+            else:
+                self.scope = "any"
+                self.subject = "revert %s" % res.group("summary")
 
     def getJiraData(self) -> None:
         self.jiras = []
