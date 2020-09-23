@@ -6,20 +6,23 @@ from git import Repo
 from changelog_generator.commit import Commit
 
 tag_version_re = re.compile(
-    "^(?P<major>\d+)-(?P<minor>\d+)-((?P<bug>\d+)|rc(?P<rc>\d+)){0,1}$"
+    r"^v?(?P<major>\d+)[-\.]+(?P<minor>\d+)[-\.]+((?P<bug>\d+)|rc(?P<rc>\d+)){0,1}$"
 )
 
 remote_re = re.compile(
-    "^(https://github\.com/|git@github\.com:)(?P<organization>[^/]+)/(?P<repository>[^.]+)(\.git)?$"
+    r"^(https://github\.com/|git@github\.com:)"
+    r"(?P<organization>[^/]+)/(?P<repository>[^.]+)(\.git)?$"
 )
 
 
-def isTagVersion(tag: str) -> bool:
+def is_tag_version(tag: str) -> bool:
     res = tag_version_re.match(tag)
-    return not not res and not res.group("rc")
+    if not res:
+        return False
+    return not res.group("rc")
 
 
-def getTagValue(tag: str) -> int:
+def get_tag_value(tag: str) -> int:
     res = tag_version_re.match(tag)
     assert res
     return -1 * (
@@ -45,45 +48,44 @@ class RepositoryManager:
             self.organization = res.group("organization")
             self.name = res.group("repository")
 
-    def getTags(self) -> List[str]:
+        self.tags = self.get_tags()
+
+    def get_tags(self) -> List[str]:
         if not self.tag_names:
             tags: List[str] = self.repository.git.tag("--merged").split("\n")
-            self.tag_names = list(sorted(filter(isTagVersion, tags), key=getTagValue))
+            self.tag_names = list(
+                sorted(filter(is_tag_version, tags), key=get_tag_value)
+            )
         return self.tag_names
 
-    def getCurrentTag(self) -> Optional[str]:
-        tags = self.getTags()
-
-        if not len(tags):
+    def get_current_tag(self) -> Optional[str]:
+        if not self.tags:
             return None
 
-        tag = self.repository.tags[tags[0]]
+        tag = self.repository.tags[self.tags[0]]
         if tag.commit == self.repository.head.commit:
             return tag
         return None
 
-    def getPreviousTag(self) -> Optional[str]:
-        tags = self.getTags()
-        if not len(tags):
-            return None
+    def get_previous_tag(self) -> Optional[str]:
+        current_tag = self.get_current_tag()
 
-        tag = self.repository.tags[tags[0]]
-        if tag.commit != self.repository.head.commit:
-            return tags[0]
+        if not current_tag and self.tags:
+            return self.tags[0]
 
-        if len(tags) < 2:
-            return None
+        if current_tag and len(self.tags) > 1:
+            return self.tags[1]
 
-        return tags[1]
+        return None
 
-    def getCommitsSinceLastTag(self) -> Iterable[Commit]:
-        previousTag = self.getPreviousTag()
-        currentTag = self.getCurrentTag() or "HEAD"
+    def get_commits_since_last_tag(self) -> Iterable[Commit]:
+        previous_tag = self.get_previous_tag()
+        current_tag = self.get_current_tag() or "HEAD"
 
-        if previousTag:
-            revision = "%s..%s" % (previousTag, currentTag)
+        if previous_tag:
+            revision = "%s..%s" % (previous_tag, current_tag)
         else:
-            revision = currentTag
+            revision = current_tag
 
         return map(
             lambda commit: Commit(
@@ -92,8 +94,8 @@ class RepositoryManager:
             self.repository.iter_commits(revision, no_merges=True),
         )
 
-    def getOrganization(self) -> str:
+    def get_organization(self) -> str:
         return self.organization
 
-    def getName(self) -> str:
+    def get_name(self) -> str:
         return self.name

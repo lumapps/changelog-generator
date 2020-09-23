@@ -1,8 +1,22 @@
+# Formatters
 black
+isort
+
+# Linters
+dep-check
 mypy
-ipython
-md-toc
+openapi-spec-validator
 pre-commit
+pyenchant
 pylint
-pytest-cov
+md-toc
 yamllint
+
+# Test packages
+pytest
+pytest-cov
+
+# Tooling
+ipdb
+ipython
+jinja2-cli

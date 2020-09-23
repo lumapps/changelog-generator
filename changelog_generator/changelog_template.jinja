@@ -1,0 +1,12 @@
+# [{{current_tag}}](https://github.com/{{organization}}/{{repository}}/compare/{{previous_tag}}...{{current_tag}})
+
+{% for type_node in commit_trees %}
+## {{type_node.commit_type}}
+
+  {% for commit in type_node.commits -%}
+* **{{commit.scope}}**: {{commit.subject}} ([{{commit.short}}](https://github.com/{{organization}}/{{repository}}/commit/{{commit.sha1}}))
+    {%- if commit.jiras|length -%}, references:
+      {%- for jira in commit.jiras %} [{{jira}}](https://{{organization}}.atlassian.net/browse/{{jira}}) {%- endfor %}
+    {%- endif %}
+  {% endfor -%}
+{% endfor -%}
