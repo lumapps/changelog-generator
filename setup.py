@@ -9,7 +9,7 @@ setup(
     maintainer_email="core@lumapps.com",
     url="https://github.com/lumapps/changelog-generator",
     python_requires="~=3.7",
-    setup_requires=["wheel"],
+    setup_requires=[],
     install_requires=["gitpython", "jinja2"],
     extras_require={},
     package_data={},

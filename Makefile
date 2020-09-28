@@ -22,7 +22,6 @@ check_pylint: $(VIRTUAL_ENV)
 	$(VIRTUAL_ENV)/bin/pylint changelog_generator tests
 
 tests: $(VIRTUAL_ENV)
-	$(VIRTUAL_ENV)/bin/python -m pip install -e '.[messaging]'
 	$(VIRTUAL_ENV)/bin/pytest
 
 clean:

@@ -13,14 +13,11 @@ repos:
       - id: check-json
       - id: check-merge-conflict
       - id: check-yaml
-        exclude: infra/k8s/(core|legasync)/templates
       - id: debug-statements
       - id: check-symlinks
       - id: detect-private-key
         exclude: tests/
       - id: end-of-file-fixer
-        exclude: local/secrets
-        exclude_types: [svg]
       - id: trailing-whitespace
         exclude: .github/CODEOWNERS
 

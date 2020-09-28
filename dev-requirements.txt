@@ -3,9 +3,7 @@ black
 isort
 
 # Linters
-dep-check
 mypy
-openapi-spec-validator
 pre-commit
 pyenchant
 pylint
