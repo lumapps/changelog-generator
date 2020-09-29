@@ -1,0 +1,66 @@
+---
+default_language_version:
+  python: python3.7
+
+repos:
+  # Apply a selection of the pre-commit built-in validators
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v2.0.0
+    hooks:
+      - id: check-added-large-files
+      - id: check-case-conflict
+      - id: check-executables-have-shebangs
+      - id: check-json
+      - id: check-merge-conflict
+      - id: check-yaml
+      - id: debug-statements
+      - id: check-symlinks
+      - id: detect-private-key
+        exclude: tests/
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+        exclude: .github/CODEOWNERS
+
+  # Make sure there are no unnecessary excludes in the above checks
+  - repo: meta
+    hooks:
+      - id: check-useless-excludes
+
+  - repo: https://github.com/frnmst/md-toc
+    rev: master
+    hooks:
+      - id: md-toc
+
+  - repo: local
+    hooks:
+      - id: black
+        name: black
+        language: system
+        entry: venv/bin/black --check
+        types: ["python"]
+
+      - id: isort
+        name: isort
+        language: system
+        entry: venv/bin/isort --check-only --diff --recursive
+        types: ["python"]
+
+      - id: pylint
+        name: pylint
+        language: system
+        entry: venv/bin/pylint
+        require_serial: true
+        types: ["python"]
+
+      - id: yamllint
+        name: yamllint
+        language: system
+        entry: venv/bin/yamllint --strict
+        types: ["yaml"]
+
+  - repo: https://github.com/lumapps/commit-message-validator
+    rev: master
+    hooks:
+      - id: commit-message-validator
+        stages: [commit-msg]
+        args: [--allow-temp, --no-jira]

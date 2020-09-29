@@ -1,0 +1,29 @@
+---
+name: 'Changelog generator'
+description: >
+  Generate the changelog between now and the last tag,
+  based on conventional commit.
+author: 'Sébastien Boulle'
+branding:
+  icon: 'bookmark'
+  color: 'green'
+outputs:
+  changelog:
+    description: 'The generated changelog'
+    value: ${{ steps.generate.outputs.changelog }}
+runs:
+  using: "composite"
+  steps:
+    - name: Generate
+      id: generate
+      run: |
+        sudo apt-get install python3-wheel -y
+        pip3 install -r ${{ github.action_path }}/requirements.txt
+        export PYTHONPATH=${{ github.action_path }}:$PYTHONPATH
+        export CHANGELOG=$(python3 -m changelog_generator)
+        export CHANGELOG="${CHANGELOG//'%'/'%25'}"
+        export CHANGELOG="${CHANGELOG//$'\n'/'%0A'}"
+        export CHANGELOG="${CHANGELOG//$'\r'/'%0D'}"
+        echo "::set-output name=changelog::$CHANGELOG"
+
+      shell: bash

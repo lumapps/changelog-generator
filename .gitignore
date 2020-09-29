@@ -1,0 +1,15 @@
+*.py[cod]
+
+test-results/
+
+.coverage
+htmlcov/
+
+build/
+dist/
+changelog_generator.egg-info/
+.eggs/
+
+venv/
+
+.mypy_cache/
