@@ -1,7 +1,7 @@
 import re
-from abc import ABC
+from abc import ABC, abstractmethod
 from functools import lru_cache
-from typing import Iterable, List, Pattern, Sequence, Tuple
+from typing import ClassVar, Iterable, List, Pattern, Sequence, Tuple
 
 from git import Repo
 
@@ -9,21 +9,13 @@ from changelog_generator.commit import Commit
 
 
 class BaseTagManager(ABC):
-    def __init__(self, regex: Pattern[str]):
-        self.regex = regex
+    PATTERN: ClassVar[Pattern[str]]
 
-    def get_tag_as_tuple(self, tag: str) -> Tuple[int, ...]:
+    def get_semver_from_tag(self, tag: str) -> Tuple[int, ...]:
         """
-        Splits a tag in a tuple of ints (major,minor,bug,rc).
-
-        Args:
-            regex: the regex that matches the major,minor,bug,rc values
-            tag: the tag to parse
-
-        Notes:
-            This makes it straightforward to compare two tags.
+        Splits a tag in a semver tuple of ints (major,minor,bug,rc).
         """
-        res = self.regex.match(tag)
+        res = self.PATTERN.match(tag)
         if not res:
             raise ValueError(f"Not a valid tag: {tag}")
         return tuple(
@@ -38,15 +30,20 @@ class BaseTagManager(ABC):
             )
         )
 
-    def is_tag_version(self, tag: str) -> bool:
-        res = self.regex.match(tag)
-        return res and not res.group("rc")
+    @abstractmethod
+    def is_release_tag(self, tag: str) -> bool:
+        """validates a tag"""
 
-    def filter(self, tags: Iterable[str]) -> Sequence[str]:
+    @abstractmethod
+    def get_tags(self):
+        """list the tags"""
+
+    def get_release_tags(self) -> Sequence[str]:
+        """Lists only the release tags"""
         return tuple(
             sorted(
-                filter(self.is_tag_version, tags),
-                key=self.get_tag_as_tuple,
+                filter(self.is_release_tag, self.get_tags()),
+                key=self.get_semver_from_tag,
                 reverse=True,
             )
         )
@@ -65,23 +62,40 @@ class SimpleTagManager(BaseTagManager):
         r"^v?(?P<major>\d+)[-.](?P<minor>\d+)[-.]((?P<bug>\d+)|rc(?P<rc>\d+))?$"
     )
 
-    def __init__(self):
-        super().__init__(self.PATTERN)
+    def __init__(self, repository: Repo) -> None:
+        self.repository = repository
+
+    def is_release_tag(self, tag: str) -> bool:
+        res = self.PATTERN.match(tag)
+        return res and not res.group("rc")
+
+    def get_tags(self):
+        return self.repository.git.tag(f"--merged").split("\n")
 
 
-class MultiServiceTagManager(BaseTagManager):
+class PrefixedTagManager(BaseTagManager):
     """
     Matches tags of the kind:
         - toto/1.2.3
         - toto/1.2.3rc1
     """
 
-    def __init__(self, service: str):
-        super().__init__(
-            re.compile(
-                f"^{service}/"
-                r"(?P<major>\d+)\.(?P<minor>\d+)\.((?P<bug>\d+)|rc(?P<rc>\d+))?$"
-            )
+    PATTERN = re.compile(
+        r"^(?P<prefix>\w+)/(?P<major>\d+)\.(?P<minor>\d+)\.((?P<bug>\d+)|rc(?P<rc>\d+))?$"
+    )
+
+    def __init__(self, repository: Repo, prefix: str):
+        self.repository = repository
+        self.prefix = prefix
+
+    def is_release_tag(self, tag: str) -> bool:
+        """making sure that only the tags with the prefix are listed"""
+        res = self.PATTERN.match(tag)
+        return res and res.group("prefix") == self.prefix and not res.group("rc")
+
+    def get_tags(self):
+        return self.repository.git.tag(f"--merged", "HEAD", f"{self.prefix}/*").split(
+            "\n"
         )
 
 
@@ -96,9 +110,7 @@ class RepositoryManager:
     organization: str = ""
     name: str = ""
 
-    def __init__(self, uri: str, service: str = "") -> None:
-        self.is_multi_service = bool(service)
-        self.service = service
+    def __init__(self, uri: str, prefix: str = "") -> None:
         self.repository = Repo(uri)
         self.tag_names: List[str] = []
         if self.repository.bare:
@@ -109,18 +121,16 @@ class RepositoryManager:
             self.organization = res.group("organization")
             self.name = res.group("repository")
 
+        self.tag_manager = (
+            PrefixedTagManager(self.repository, prefix)
+            if prefix
+            else SimpleTagManager(self.repository)
+        )
+
     @property
     @lru_cache()
     def tags(self) -> Sequence[str]:
-        tags: List[str] = self.repository.git.tag("--merged").split("\n")
-
-        tag_manager = (
-            MultiServiceTagManager(self.service)
-            if self.is_multi_service
-            else SimpleTagManager()
-        )
-
-        return tag_manager.filter(tags)
+        return self.tag_manager.get_release_tags()
 
     @property
     @lru_cache()

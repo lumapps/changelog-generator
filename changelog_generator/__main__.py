@@ -55,7 +55,7 @@ def get_commit_but_types(
 
 
 def main() -> None:
-    repository = RepositoryManager("./", os.environ.get("SERVICE"))
+    repository = RepositoryManager("./", os.environ.get("TAG_PREFIX"))
 
     commits = repository.commits_since_last_tag
     trees: List[CommitTree] = []
