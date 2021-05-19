@@ -141,9 +141,10 @@ jobs:
           fetch-depth: 0
       - name: Generate changelog
         id: generate_changelog
-        uses: sebastien-boulle/changelog-generator@master
+        uses: lumapps/changelog-generator@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_PREFIX: # add a prefix here if you have a `prefix/semver` pattern in your repo
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
