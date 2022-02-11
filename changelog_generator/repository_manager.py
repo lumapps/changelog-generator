@@ -18,7 +18,11 @@ class RepositoryManager:
     organization: str = ""
     name: str = ""
 
-    def __init__(self, uri: str, prefix: str = "") -> None:
+    def __init__(
+        self, uri: str, prefix: str = "", filter_paths: Sequence[str] = None
+    ) -> None:
+        self.filter_paths = filter_paths or []
+        self.prefix = prefix
         self.repository = Repo(uri)
         self.tag_names: List[str] = []
         if self.repository.bare:
@@ -28,7 +32,6 @@ class RepositoryManager:
         if res:
             self.organization = res.group("organization")
             self.name = res.group("repository")
-
         self.tag_manager = (
             PrefixedTagManager(self.repository, prefix)
             if prefix
@@ -58,7 +61,13 @@ class RepositoryManager:
         else:
             revision = self.current_tag
 
+        options = {"no_merges": True}
+        if self.filter_paths:
+            options["paths"] = self.filter_paths
+
+        commits = self.repository.iter_commits(revision, **options)
+
         return tuple(
             Commit(hexsha=commit.hexsha, summary=commit.summary, message=commit.message)
-            for commit in self.repository.iter_commits(revision, no_merges=True)
+            for commit in commits
         )
