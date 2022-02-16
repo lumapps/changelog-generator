@@ -145,6 +145,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG_PREFIX: # add a prefix here if you have a `prefix/semver` pattern in your repo
+          MAX_LENGTH: # max_length for the changelog, once above sections will be cutted to avoid crash. Defaults to 5000.
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1

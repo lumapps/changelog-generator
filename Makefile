@@ -9,6 +9,9 @@ $(VIRTUAL_ENV): setup.cfg setup.py dev-requirements.txt requirements.txt
 
 lint: check_format check_imports check_types check_pylint
 
+format:
+	$(VIRTUAL_ENV)/bin/black changelog_generator tests
+
 check_types: $(VIRTUAL_ENV)
 	$(VIRTUAL_ENV)/bin/mypy changelog_generator
 
@@ -27,4 +30,4 @@ tests: $(VIRTUAL_ENV)
 clean:
 	rm -fr build/ dist/ .eggs/ changelog_generator.egg-info/
 
-.PHONY: lint check_format check_types tests clean
+.PHONY: lint check_format check_types tests clean format

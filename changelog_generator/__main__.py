@@ -1,15 +1,14 @@
 import os
-from typing import List, NamedTuple, Sequence
+from typing import List, Sequence
 
 from jinja2 import Environment, FileSystemLoader
 
-from changelog_generator.commit import Commit
+from changelog_generator.commit import (
+    CommitTree,
+    check_and_cut_if_over_limit,
+    construct_commit_trees,
+)
 from changelog_generator.repository_manager import RepositoryManager
-
-
-class CommitTree(NamedTuple):
-    commit_type: str
-    commits: Sequence[Commit]
 
 
 def render_changelog(
@@ -18,6 +17,7 @@ def render_changelog(
     previous_tag: str,
     current_tag: str,
     commit_trees: Sequence[CommitTree],
+    link_to_commits: str,
 ) -> str:
     template_loader = FileSystemLoader(searchpath=os.path.dirname(__file__))
     template_environment = Environment(loader=template_loader)
@@ -29,70 +29,18 @@ def render_changelog(
         previous_tag=previous_tag,
         current_tag=current_tag,
         commit_trees=commit_trees,
-    )
-
-
-def get_commit_from_type(
-    commits: Sequence[Commit], commit_type: str
-) -> Sequence[Commit]:
-    return sorted(
-        filter(lambda commit: commit.commit_type == commit_type, commits),
-        key=lambda commit: commit.scope,
-    )
-
-
-def get_commit_but_types(
-    commits: Sequence[Commit], commit_types: Sequence[str]
-) -> Sequence[Commit]:
-    return sorted(
-        filter(
-            lambda commit: commit.commit_type
-            and commit.commit_type not in commit_types,
-            commits,
-        ),
-        key=lambda commit: commit.scope,
+        link_to_commits=link_to_commits,
     )
 
 
 def main() -> None:
     repository = RepositoryManager("./", os.environ.get("TAG_PREFIX"))
+    max_changelog_length: int = int(os.getenv("MAX_LENGTH", 5000))
 
     commits = repository.commits_since_last_tag
-    trees: List[CommitTree] = []
+    trees: List[CommitTree] = construct_commit_trees(commits)
 
-    documentations = CommitTree(
-        commit_type=":notebook_with_decorative_cover: Documentation",
-        commits=get_commit_from_type(commits, "docs"),
-    )
-    if documentations.commits:
-        trees.append(documentations)
-
-    features = CommitTree(
-        commit_type=":rocket: Features", commits=get_commit_from_type(commits, "feat")
-    )
-    if features.commits:
-        trees.append(features)
-
-    fixes = CommitTree(
-        commit_type=":bug: Fixes", commits=get_commit_from_type(commits, "fix")
-    )
-    if fixes.commits:
-        trees.append(fixes)
-
-    reverts = CommitTree(
-        commit_type=":scream: Revert", commits=get_commit_from_type(commits, "revert")
-    )
-    if reverts.commits:
-        trees.append(reverts)
-
-    others = CommitTree(
-        commit_type=":nut_and_bolt: Others",
-        commits=get_commit_but_types(
-            commits, ["documentations", "feat", "fix", "revert"]
-        ),
-    )
-    if others.commits:
-        trees.append(others)
+    check_and_cut_if_over_limit(max_changelog_length, len(commits), trees)
 
     print(
         render_changelog(
@@ -101,6 +49,7 @@ def main() -> None:
             previous_tag=repository.previous_tag,
             current_tag=repository.current_tag,
             commit_trees=trees,
+            link_to_commits=repository.get_github_link_for_commits_since_last_tag(),
         )
     )
 

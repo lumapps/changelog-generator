@@ -1,6 +1,6 @@
 import re
 from functools import lru_cache
-from typing import List, Sequence
+from typing import List, Optional, Sequence
 
 from git import Repo
 
@@ -62,3 +62,22 @@ class RepositoryManager:
             Commit(hexsha=commit.hexsha, summary=commit.summary, message=commit.message)
             for commit in self.repository.iter_commits(revision, no_merges=True)
         )
+
+    @lru_cache()
+    def get_commits_since_tag(self, tag: str) -> Sequence[Commit]:
+        revision = f"{tag}..{self.current_tag}"
+
+        return tuple(
+            Commit(hexsha=commit.hexsha, summary=commit.summary, message=commit.message)
+            for commit in self.repository.iter_commits(revision, no_merges=True)
+        )
+
+    @lru_cache()
+    def get_github_link_for_commits_since_last_tag(self) -> Optional[str]:
+        if not self.previous_tag:
+            return None
+        return self.get_github_link_for_commits_since_tag(self.previous_tag)
+
+    @lru_cache()
+    def get_github_link_for_commits_since_tag(self, tag: str) -> str:
+        return f"https://github.com/{self.organization}/{self.name}/compare/{tag}...{self.current_tag}"
