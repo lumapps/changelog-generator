@@ -78,7 +78,7 @@ class PrefixedTagManager(BaseTagManager):
     """
 
     PATTERN = re.compile(
-        r"^(?P<prefix>\w+)/(?P<major>\d+)\.(?P<minor>\d+)\.((?P<bug>\d+)|rc(?P<rc>\d+))?$"
+        r"^(?P<prefix>[\w-]+)/(?P<major>\d+)\.(?P<minor>\d+)\.((?P<bug>\d+)|rc(?P<rc>\d+))?$"
     )
 
     def __init__(self, repository: Repo, prefix: str):
