@@ -145,6 +145,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG_PREFIX: # add a prefix here if you have a `prefix/semver` pattern in your repo
+          FILTER_COMMITS_ON_TAG_PREFIX: # Optional: set it to true if you want to filter commits and keep only the one that have the same scope as the provided tag prefix
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1

@@ -53,11 +53,26 @@ def get_commit_but_types(
         key=lambda commit: commit.scope,
     )
 
+def get_commits_from_scope(
+    commits: Sequence[Commit], commit_scope: str
+) -> Sequence[Commit]:
+    return sorted(
+        filter(lambda commit: commit.scope == commit_scope, commits),
+        key=lambda commit: commit.scope,
+    )
 
 def main() -> None:
-    repository = RepositoryManager("./", os.environ.get("TAG_PREFIX"))
+    tag_prefix = os.environ.get("TAG_PREFIX")
+    repository = RepositoryManager("./", tag_prefix)
+
+    filter_commits_on_tag_prefix = os.getenv("FILTER_COMMITS_ON_TAG_PREFIX")
 
     commits = repository.commits_since_last_tag
+
+    if tag_prefix and bool(filter_commits_on_tag_prefix):
+        commits = get_commits_from_scope(commits, tag_prefix)
+
+
     trees: List[CommitTree] = []
 
     documentations = CommitTree(
