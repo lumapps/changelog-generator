@@ -19,7 +19,7 @@ class RepositoryManager:
     name: str = ""
 
     def __init__(
-        self, uri: str, prefix: str = "", filter_paths: Sequence[str] = None
+        self, uri: str, prefix: str = None, filter_paths: Sequence[str] = None
     ) -> None:
         self.filter_paths = filter_paths or []
         self.prefix = prefix
