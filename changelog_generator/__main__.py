@@ -61,7 +61,7 @@ def main() -> None:
         "-t",
         "--tag_prefix",
         nargs="?",  # optional argument
-        help="Filter tag with this prefix",
+        help="Filter tag with this prefix. Note: also available as TAG_PREFIX env var",
     )
     parser.add_argument(
         "-p",
@@ -70,7 +70,8 @@ def main() -> None:
         help="Filter commits with this semicolon separated git path regex",
     )
     args = parser.parse_args()
-    prefix = args.tag_prefix
+    #
+    prefix = args.tag_prefix or os.environ.get("TAG_PREFIX")
     filter_paths = args.path_filters
     repository = RepositoryManager(uri="./", prefix=prefix, filter_paths=filter_paths)
 

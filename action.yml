@@ -9,8 +9,11 @@ branding:
   color: 'green'
 inputs:
   github_token:
-    required: true
-    description: The github token to be used to fetch the repository
+    description: |
+      The github token to be used to fetch the repository
+      
+      Notes:
+         this will become required in the next version
   tag_prefix:
     description: if you tags follow the `prefix/version` pattern
     required: false
@@ -36,7 +39,12 @@ runs:
         
         # define the environment variables
         export PYTHONPATH=${{ github.action_path }}:$PYTHONPATH
-        export GITHUB_TOKEN=${{ inputs.github_token }}
+        
+        # for retro-compatibility purpose. once github_token is required, then no need for the if
+        if  test ! -z "${{ inputs.github_token }}"
+        then
+          export GITHUB_TOKEN=${{ inputs.github_token }}
+        fi
         
         # generate the change log
         CHANGELOG=$(python3 -m changelog_generator \
