@@ -5,6 +5,8 @@ from pathlib import Path
 import pytest
 from git import Repo
 
+from changelog_generator.repository_manager import RepositoryManager
+
 
 @pytest.fixture(scope="session", autouse=True)
 def core_repo() -> Repo:

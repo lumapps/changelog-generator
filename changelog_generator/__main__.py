@@ -1,4 +1,5 @@
 import os
+from argparse import ArgumentParser
 from typing import List, NamedTuple, Sequence
 
 from jinja2 import Environment, FileSystemLoader
@@ -55,7 +56,24 @@ def get_commit_but_types(
 
 
 def main() -> None:
-    repository = RepositoryManager("./", os.environ.get("TAG_PREFIX"))
+    parser = ArgumentParser()
+    parser.add_argument(
+        "-t",
+        "--tag_prefix",
+        nargs="?",  # optional argument
+        help="Filter tag with this prefix. Note: also available as TAG_PREFIX env var",
+    )
+    parser.add_argument(
+        "-p",
+        "--path_filters",
+        nargs="*",  # optional list
+        help="Filter commits with this semicolon separated git path regex",
+    )
+    args = parser.parse_args()
+    #
+    prefix = args.tag_prefix or os.environ.get("TAG_PREFIX")
+    filter_paths = args.path_filters
+    repository = RepositoryManager(uri="./", prefix=prefix, filter_paths=filter_paths)
 
     commits = repository.commits_since_last_tag
     trees: List[CommitTree] = []

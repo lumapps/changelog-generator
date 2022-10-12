@@ -7,6 +7,22 @@ author: 'Sébastien Boulle'
 branding:
   icon: 'bookmark'
   color: 'green'
+inputs:
+  github_token:
+    description: |
+      The github token to be used to fetch the repository
+      
+      Notes:
+         this will become required in the next version
+  tag_prefix:
+    description: if you tags follow the `prefix/version` pattern
+    required: false
+  path_filters:
+    description: |
+      A space separated list of git path blob regex to be used to filters the commits. 
+      This can be used to keep only relevant commits by filtering on relevant files.
+      Example:
+        path_filters: "src/ doc/ tests/*/qa/*"
 outputs:
   changelog:
     description: 'The generated changelog'
@@ -17,13 +33,30 @@ runs:
     - name: Generate
       id: generate
       run: |
+        # install de dependencies
         sudo apt-get install python3-wheel -y
         pip3 install -r ${{ github.action_path }}/requirements.txt
+        
+        # define the environment variables
         export PYTHONPATH=${{ github.action_path }}:$PYTHONPATH
-        export CHANGELOG=$(python3 -m changelog_generator)
-        export CHANGELOG="${CHANGELOG//'%'/'%25'}"
-        export CHANGELOG="${CHANGELOG//$'\n'/'%0A'}"
-        export CHANGELOG="${CHANGELOG//$'\r'/'%0D'}"
+        
+        # for retro-compatibility purpose. once github_token is required, then no need for the if
+        if  test ! -z "${{ inputs.github_token }}"
+        then
+          export GITHUB_TOKEN=${{ inputs.github_token }}
+        fi
+        
+        # generate the change log
+        CHANGELOG=$(python3 -m changelog_generator \
+        --tag_prefix ${{ inputs.tag_prefix }} \
+        --path_filters ${{ inputs.path_filters }} \
+        | tr '%' '%25' | tr '\n' '%0A' | tr '\r' '%0D'
+        )
+        
+        # truncate the release note to not bloat the 65536 bytes max limit
+        CHANGELOG=${CHANGELOG:0:65200}
+        
+        # output the changelog
         echo "::set-output name=changelog::$CHANGELOG"
 
       shell: bash
