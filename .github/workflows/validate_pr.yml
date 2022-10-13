@@ -14,3 +14,33 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: lumapps/github-actions-validator@master
+  preview_changelog:
+    timeout-minutes: 30
+    name: Render the changelog in a PR comment to preview changes
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Generate changelog
+        id: generate_changelog
+        uses: ./
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          path_filters: "changelog_generator/"
+      - uses: kanga333/comment-hider@bbdf5b562fbec24e6f60572d8f712017428b92e0
+        name: Hide previous comments
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Add PR Comment
+        uses: actions/github-script@v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: process.env.CHANGELOG
+            })
