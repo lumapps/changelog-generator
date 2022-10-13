@@ -60,14 +60,17 @@ class RepositoryManager:
             revision = f"{self.previous_tag}..{self.current_tag}"
         else:
             revision = self.current_tag
+        return self._get_commits(revision)
 
+    def _get_commits(self, revision: str) -> Sequence[Commit]:
         options = {"no_merges": True}
         if self.filter_paths:
             options["paths"] = self.filter_paths
-
         commits = self.repository.iter_commits(revision, **options)
-
         return tuple(
             Commit(hexsha=commit.hexsha, summary=commit.summary, message=commit.message)
             for commit in commits
         )
+
+    def from_target(self, target: str) -> Sequence[Commit]:
+        return self._get_commits(target)
