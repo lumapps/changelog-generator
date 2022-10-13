@@ -23,6 +23,8 @@ inputs:
       This can be used to keep only relevant commits by filtering on relevant files.
       Example:
         path_filters: "src/ doc/ tests/*/qa/*"
+  target:
+    description: A rev1..rev2 string to be used to generate the commit list
 outputs:
   changelog:
     description: 'The generated changelog'
@@ -52,7 +54,8 @@ runs:
         # generate the change log
         CHANGELOG=$(python3 -m changelog_generator \
         --tag_prefix ${{ inputs.tag_prefix }} \
-        --path_filters ${{ inputs.path_filters }}
+        --path_filters ${{ inputs.path_filters }} \
+        --target ${{ inputs.target }}
         )
         
         # truncate the release note to not bloat the 65536 bytes max limit

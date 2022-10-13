@@ -23,12 +23,18 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+      - run: |
+          # create the master branch
+          git branch ${{ github.base_ref }} origin/${{ github.base_ref }}
+          # create the pr branch
+          git branch ${{ github.head_ref }} origin/${{ github.head_ref }}
       - name: Generate changelog
         id: generate_changelog
         uses: ./
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           path_filters: "changelog_generator/"
+          target: ${{ github.base_ref }}..${{ github.head_ref }}
       - uses: kanga333/comment-hider@bbdf5b562fbec24e6f60572d8f712017428b92e0
         name: Hide previous comments
         with:
