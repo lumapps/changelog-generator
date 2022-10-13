@@ -28,19 +28,52 @@ def run():
         "them",
     )
     args = parser.parse_args()
-    (tag_n, tag_n1) = args.target.split("..")
+    target = args.target
+    filter_paths = args.filter_paths
+    path = args.repository_path
 
+    update_release_note(filter_paths, path, target)
+
+
+def update_release_note(filter_paths, path, target, create: bool = True):
+    tag_n, tag_n1 = target.split("..")
     print("Will rewrite the release with the commits between ", tag_n, tag_n1)
-    changelog = generate(
-        args.repository_path, target=args.target, filter_paths=args.filter_paths
-    )
-    print(
+    changelog = generate(path, target=target, filter_paths=filter_paths)
+    changelog = changelog[:125000]
+    try:
+        # checking if the release exists
         subprocess.check_output(
-            ["gh", "release", "edit", tag_n1, "-F", "-"],
+            ["gh", "release", "view", tag_n1],
             input=changelog.encode(),
-            cwd=args.repository_path,
+            cwd=path,
         )
-    )
+    except subprocess.CalledProcessError:
+        print(f"the tag {tag_n1} exists but has not been released yet")
+        if create:
+            print(
+                subprocess.check_output(
+                    [
+                        "gh",
+                        "release",
+                        "create",
+                        tag_n1,
+                        "--title",
+                        f"Release {tag_n1}",
+                        "-F",
+                        "-",
+                    ],
+                    input=changelog.encode(),
+                    cwd=path,
+                )
+            )
+    else:
+        print(
+            subprocess.check_output(
+                ["gh", "release", "edit", tag_n1, "-F", "-"],
+                input=changelog.encode(),
+                cwd=path,
+            )
+        )
 
 
 if __name__ == "__main__":
