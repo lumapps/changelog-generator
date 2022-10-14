@@ -51,6 +51,7 @@ def get_commit_trees(commits: Sequence[Commit]) -> List[CommitTree]:
     return [
         CommitTree(commit_type=title, commits=commit_by_type[commit_type])
         for commit_type, title in titles.items()
+        if commit_type in commit_by_type
     ]
 
 
