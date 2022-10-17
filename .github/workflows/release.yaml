@@ -19,9 +19,6 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - name: Get version and tag
-        id: get_version_and_tag
-        uses: ./.github/actions/get_version_and_tag
       - name: Generate changelog
         id: generate_changelog
         uses: ./
