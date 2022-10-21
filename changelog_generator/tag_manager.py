@@ -91,6 +91,6 @@ class PrefixedTagManager(BaseTagManager):
         return res and res.group("prefix") == self.prefix and not res.group("rc")
 
     def get_tags(self):
-        return self.repository.git.tag(f"--merged", "HEAD", f"{self.prefix}/*").split(
-            "\n"
-        )
+        return self.repository.git.tag(
+            "--merged", "origin/master", f"{self.prefix}/*"
+        ).split("\n")
