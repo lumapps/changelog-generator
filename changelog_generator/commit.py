@@ -4,7 +4,7 @@ from typing import List, Optional
 re_header_pattern = re.compile(
     r"^(?P<type>[^\(]+)\((?P<scope>[^\)]+)\): (?P<subject>.+)$"
 )
-re_jira_pattern = re.compile(r"([A-Z]{2,4}-[0-9]{1,6})")
+re_jira_pattern = re.compile(r"\b([A-Z]{2,6}[0-9]{0,6}-[0-9]{1,6})\b")
 re_broke_pattern = re.compile(r"^BROKEN:$")
 re_revert_header_pattern = re.compile(r"^[R|r]evert:? (?P<summary>.*)$")
 re_revert_commit_pattern = re.compile(r"^This reverts commit ([a-f0-9]+)")
