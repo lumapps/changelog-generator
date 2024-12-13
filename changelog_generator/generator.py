@@ -5,6 +5,7 @@ from jinja2 import Environment, FileSystemLoader
 
 from .commit import Commit
 from .repository_manager import RepositoryManager
+from .ai_generator import generate_ai_summary
 
 
 class CommitTree(NamedTuple):
@@ -18,6 +19,7 @@ def render_changelog(
     previous_tag: str,
     current_tag: str,
     commit_trees: Sequence[CommitTree],
+    ai_summary: str | None,
 ) -> str:
     template_loader = FileSystemLoader(searchpath=os.path.dirname(__file__))
     template_environment = Environment(loader=template_loader)
@@ -29,6 +31,7 @@ def render_changelog(
         previous_tag=previous_tag,
         current_tag=current_tag,
         commit_trees=commit_trees,
+        ai_summary=ai_summary,
     )
 
 
@@ -67,9 +70,11 @@ def generate(
     if target:
         commits = repository.from_target(target)
         previous_tag, current_tag = target.split("..")
+        diff = None
     else:
         commits = repository.commits_since_last_tag
         previous_tag, current_tag = repository.previous_tag, repository.current_tag
+        diff = repository.get_diff_since_last_tag
 
     changelog = render_changelog(
         organization=repository.organization,
@@ -77,5 +82,6 @@ def generate(
         previous_tag=previous_tag,
         current_tag=current_tag,
         commit_trees=get_commit_trees(commits),
+        ai_summary=generate_ai_summary(diff),
     )
     return changelog

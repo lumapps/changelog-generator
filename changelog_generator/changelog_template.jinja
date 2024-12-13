@@ -1,5 +1,10 @@
 # [{{current_tag}}](https://github.com/{{organization}}/{{repository}}/compare/{{previous_tag}}...{{current_tag}})
 
+{% if ai_summary %}
+## AI generated summary
+{{ ai_summary }}
+{% endif -%}
+
 {% for type_node in commit_trees %}
 ## {{type_node.commit_type}}
 
