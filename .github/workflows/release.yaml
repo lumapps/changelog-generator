@@ -27,7 +27,7 @@ jobs:
           path_filters: "changelog_generator/"
       - name: Create Release note
         id: create_release
-        uses: ncipollo/release-action@40bb172bd05f266cf9ba4ff965cb61e9ee5f6d01  # 1.9.0
+        uses: ncipollo/release-action@a2e71bdd4e7dab70ca26a852f29600c98b33153e  # 1.12.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
