@@ -1,11 +1,14 @@
-PYTHON ?= python3.7
+PYTHON ?= python3.11
 VIRTUAL_ENV ?= ./venv
 
 $(VIRTUAL_ENV): setup.cfg setup.py dev-requirements.txt requirements.txt
 	$(PYTHON) -m venv $(VIRTUAL_ENV)
-	$(VIRTUAL_ENV)/bin/python -m pip install -e . -r dev-requirements.txt
-	$(VIRTUAL_ENV)/bin/python -m pip install -e . -r requirements.txt
+	$(VIRTUAL_ENV)/bin/python -m pip install uv
+	$(VIRTUAL_ENV)/bin/python -m uv pip install -e . -r dev-requirements.txt -r requirements.txt
 	touch $(VIRTUAL_ENV)  # Update venv mtime to tell make it's up to date
+
+requirements.txt: requirements.in
+	$(VIRTUAL_ENV)/bin/python -m uv pip compile --quiet --generate-hashes --strip-extras --python-platform=linux $< -o $@
 
 lint: check_format check_imports check_types check_pylint
 
