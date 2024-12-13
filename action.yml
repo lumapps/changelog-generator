@@ -35,7 +35,7 @@ runs:
     - name: Install Python ${{ env.python-version }}
       uses: actions/setup-python@v4
       with:
-        python-version: '3.7'
+        python-version: '3.11'
     - name: Generate
       id: generate
       run: |

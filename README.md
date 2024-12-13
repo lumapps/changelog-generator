@@ -79,7 +79,7 @@ To get a local copy up and running follow these steps.
 
 ### Prerequisites
 
-1. Install python3.7
+1. Install python3.11
 
    ```sh
    sudo apt install python3
