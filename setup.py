@@ -9,7 +9,7 @@ setup(
     url="https://github.com/lumapps/changelog-generator",
     python_requires="~=3.12",
     setup_requires=[],
-    install_requires=["gitpython", "jinja2"],
+    install_requires=["gitpython", "jinja2", "google-genai"],
     extras_require={},
     package_data={},
     test_suite="tests",
