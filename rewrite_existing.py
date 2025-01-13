@@ -1,10 +1,11 @@
 """
-Uses the gh cli to easily rewrite a existing release note
+Uses the GitHub command line tool to easily rewrite a existing release note
 
 How To Use:
   python -m path_to_repository previousTag..nextTag [filter_path1 filter_path2]
 
 """
+
 import subprocess
 from argparse import ArgumentParser
 

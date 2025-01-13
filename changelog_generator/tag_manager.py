@@ -10,7 +10,7 @@ class BaseTagManager(ABC):
 
     def get_semver_from_tag(self, tag: str) -> Tuple[int, ...]:
         """
-        Splits a tag in a semver tuple of ints (major,minor,bug,rc).
+        Splits a tag in a semantic versioning tuple of integers (major,minor,bug,patch).
         """
         res = self.PATTERN.match(tag)
         if not res:
@@ -67,7 +67,7 @@ class SimpleTagManager(BaseTagManager):
         return res and not res.group("rc")
 
     def get_tags(self):
-        return self.repository.git.tag(f"--merged").split("\n")
+        return self.repository.git.tag("--merged").split("\n")
 
 
 class PrefixedTagManager(BaseTagManager):
