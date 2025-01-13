@@ -1,4 +1,4 @@
-PYTHON ?= python3.11
+PYTHON ?= python3.12
 VIRTUAL_ENV ?= ./venv
 
 $(VIRTUAL_ENV): setup.cfg setup.py dev-requirements.txt requirements.txt
