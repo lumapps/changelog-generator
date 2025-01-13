@@ -1,11 +1,12 @@
+---
 name: "Validate Pull Request"
 
-on:
+"on":
   pull_request:
 
 concurrency:
-    group: ${{ github.workflow }}-${{ github.head_ref }}
-    cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.head_ref }}
+  cancel-in-progress: true
 
 jobs:
   github-actions-validator:

@@ -52,10 +52,10 @@ class Commit:
             summary_res = re_header_pattern.match(res.group("summary"))
             if summary_res:
                 self.scope = summary_res.group("scope")
-                self.subject = "revert %s" % summary_res.group("subject")
+                self.subject = f"revert {summary_res.group('subject')}"
             else:
                 self.scope = "any"
-                self.subject = "revert %s" % res.group("summary")
+                self.subject = f"revert {res.group('summary')}"
 
     def get_jira_data(self) -> None:
         self.jiras = []

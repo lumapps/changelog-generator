@@ -27,7 +27,7 @@ repos:
       - id: check-useless-excludes
 
   - repo: https://github.com/frnmst/md-toc
-    rev: master
+    rev: 9.0.0
     hooks:
       - id: md-toc
 
@@ -36,13 +36,13 @@ repos:
       - id: black
         name: black
         language: system
-        entry: venv/bin/black --check
+        entry: venv/bin/black
         types: ["python"]
 
       - id: isort
         name: isort
         language: system
-        entry: venv/bin/isort --check-only --diff --recursive
+        entry: venv/bin/isort --recursive
         types: ["python"]
 
       - id: pylint
@@ -59,7 +59,7 @@ repos:
         types: ["yaml"]
 
   - repo: https://github.com/lumapps/commit-message-validator
-    rev: master
+    rev: 1.5.1
     hooks:
       - id: commit-message-validator
         stages: [commit-msg]
