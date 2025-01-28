@@ -34,15 +34,19 @@ def generate_ai_summary(git_diff: str | None) -> str | None:
 
     if not project:
         logging.error("Missing VERTEX_PROJECT environment variable")
+        return None
 
     if not location:
         logging.error("Missing VERTEX_LOCATION environment variable")
+        return None
 
     if not model:
         logging.error("Missing VERTEX_MODEL environment variable")
+        return None
 
     if not service_account_key:
         logging.error("Missing VERTEX_CREDENTIALS environment variable")
+        return None
 
     credentials = service_account.Credentials.from_service_account_info(
         json.loads(service_account_key), scopes=SCOPES,
