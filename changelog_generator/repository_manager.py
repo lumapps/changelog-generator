@@ -68,7 +68,10 @@ class RepositoryManager:
         if not self.previous_tag:
             return None
 
-        return self.repository.git.diff(f"{self.previous_tag}..{self.current_tag}")
+        if self.filter_paths:
+            return self.repository.git.diff(f"{self.previous_tag}..{self.current_tag}", '--', *self.filter_paths)
+        else:
+            return self.repository.git.diff(f"{self.previous_tag}..{self.current_tag}")
 
     def _get_commits(self, revision: str) -> Sequence[Commit]:
         options = {"no_merges": True}
