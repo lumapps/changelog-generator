@@ -63,7 +63,7 @@ def generate(
     target: Optional[str] = None,
     prefix: Optional[str] = None,
     filter_paths: Optional[str] = None,
-):
+) -> str:
     repository = RepositoryManager(
         uri=repository_path, prefix=prefix, filter_paths=filter_paths
     )
