@@ -5,17 +5,25 @@ from google import genai
 from google.genai import types
 from google.oauth2 import service_account
 
-PROMPT = (
-    "Here's a git diff between two versions (represented as git tags). "
-    "Write a summary of this diff by following this structure. Do not add any new section."
-    "A TL;DR section with very few lines expressing the salient points of your analysis "
-    "A Functional Changes section that should be understandable by readers that have no technical knowledge "
-    "A section about possible regressions that could appear : this section should aim to be brief as it might be used during a production incident, but it musn't be too generic either"
-    "A section about key kong/log metrics that should be observed during the production release process, these must be very precise"
-    "The summary must be written with github and slack compatible markdown. It should be pleasing and give priority to salient points. It may use emojis but no colors or fonts."
-    "Do not print a description of each commit, the goal is to be as concise as possible. Do not take more than 200 words."
-    "Do not try to infer the name and version of the release."
-)
+
+def get_prompt(prefix: str) -> str:
+    return f"""
+Here's a `git diff` between two versions (represented as `git tags`). Write a **concise and precise summary** of this diff using the following structure.
+ **Do not introduce new sections** and prioritize **changes** files with this {prefix} over modifications in the common layer.
+
+### Structure:
+1. **TL;DR**: A brief, high-impact summary of the most significant changes. Keep it to a few lines.
+2. **Functional Changes**: A description of changes **without requiring technical knowledge**, focusing on the impact on services.
+3. **Possible Regressions**: Identify concrete risks introduced by the changes. Be precise—avoid generic statements. This section may be used in production incidents, so make it **clear and to the point**.
+4. **Key Kong/Log Metrics to Observe**: List **specific, actionable** metrics that should be monitored during the release process, ensuring they are relevant and measurable.
+
+### Additional Constraints:
+- Use **GitHub and Slack-compatible markdown** for readability (e.g., bullet points, bold text, emojis where helpful).
+- **No commit-by-commit descriptions**—focus on **high-level themes**.
+- **Prioritize clarity over a strict word limit**, but aim for conciseness.
+- **Do not infer the release name or version.**
+"""
+
 
 SCOPES = [
     "https://www.googleapis.com/auth/generative-language",
@@ -23,7 +31,7 @@ SCOPES = [
 ]
 
 
-def generate_ai_summary(git_diff: str | None) -> str | None:
+def generate_ai_summary(prefix: str| None, git_diff: str | None) -> str | None:
     if not git_diff:
         return "No changes were provided in the diff"
 
@@ -31,7 +39,7 @@ def generate_ai_summary(git_diff: str | None) -> str | None:
     location = os.getenv("VERTEX_LOCATION")
     model = os.getenv("VERTEX_MODEL")
     service_account_key = os.getenv("VERTEX_CREDENTIALS")
-    prompt = os.getenv("VERTEX_PROMPT", PROMPT)
+    prompt = os.getenv("VERTEX_PROMPT", get_prompt(prefix or ""))
 
     if not project:
         logging.error("Missing VERTEX_PROJECT environment variable")

@@ -82,6 +82,6 @@ def generate(
         previous_tag=previous_tag,
         current_tag=current_tag,
         commit_trees=get_commit_trees(commits),
-        ai_summary=generate_ai_summary(diff),
+        ai_summary=generate_ai_summary(prefix, diff),
     )
     return changelog
