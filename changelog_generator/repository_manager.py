@@ -69,6 +69,7 @@ class RepositoryManager:
             return None
 
         if self.filter_paths:
+            print(self.repository.git.diff(f"{self.previous_tag}..{self.current_tag}", "--name-only", '--', *self.filter_paths))
             return self.repository.git.diff(f"{self.previous_tag}..{self.current_tag}", '--', *self.filter_paths)
         else:
             return self.repository.git.diff(f"{self.previous_tag}..{self.current_tag}")
