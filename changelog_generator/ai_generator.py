@@ -7,13 +7,14 @@ from google.oauth2 import service_account
 
 PROMPT = (
     "Here's a git diff between two versions (represented as git tags). "
-    "Write a summary of this diff by following this structure "
+    "Write a summary of this diff by following this structure. Do not add any new section."
     "A TL;DR section with very few lines expressing the salient points of your analysis "
     "A Functional Changes section that should be understandable by readers that have no technical knowledge "
     "A section about possible regressions that could appear : this section should aim to be brief as it might be used during a production incident, but it musn't be too generic either"
     "A section about key kong/log metrics that should be observed during the production release process, these must be very precise"
     "The summary must be written with github and slack compatible markdown. It should be pleasing and give priority to salient points, must use colors and must use tasteful fonts, and follow best practices. You can use UML schemas and diagrams."
     "Do not print a description of each commit, the goal is to be as concise as possible. Do not take more than 200 words."
+    "Do not try to infer the name and version of the release."
 )
 
 SCOPES = [
