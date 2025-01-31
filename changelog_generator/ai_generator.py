@@ -15,7 +15,6 @@ Here's a `git diff` between two versions (represented as `git tags`). Write a **
 1. **TL;DR**: A brief, high-impact summary of the most significant changes. Keep it to a few lines.
 2. **Functional Changes**: A description of changes **without requiring technical knowledge**, focusing on the impact on services.
 3. **Possible Regressions**: Identify concrete risks introduced by the changes. Be precise—avoid generic statements. This section may be used in production incidents, so make it **clear and to the point**.
-4. **Key Kong/Log Metrics to Observe**: List **specific, actionable** metrics that should be monitored during the release process, ensuring they are relevant and measurable.
 
 ### Additional Constraints:
 - Use **GitHub and Slack-compatible markdown** for readability (e.g., bullet points, bold text, emojis where helpful).
