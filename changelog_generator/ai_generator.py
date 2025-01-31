@@ -10,6 +10,7 @@ def get_prompt(prefix: str) -> str:
     return f"""
 Here's a `git diff` between two versions (represented as `git tags`). Write a **concise and precise summary** of this diff using the following structure.
  **Do not introduce new sections** and prioritize **changes** files with this {prefix} over modifications in the common layer.
+ Section 2 and 3 can be removed if they are not meaningful.
 
 ### Structure:
 1. **TL;DR**: A brief, high-impact summary of the most significant changes. Keep it to a few lines.
