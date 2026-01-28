@@ -2,6 +2,7 @@
 default_language_version:
   python: python3.12
 
+
 repos:
   # Apply a selection of the pre-commit built-in validators
   - repo: https://github.com/pre-commit/pre-commit-hooks
