@@ -13,3 +13,5 @@ changelog_generator.egg-info/
 venv/
 
 .mypy_cache/
+
+.idea
