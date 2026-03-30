@@ -32,9 +32,6 @@ SCOPES = [
 
 
 def generate_ai_summary(prefix: str| None, git_diff: str | None) -> str | None:
-    if not git_diff:
-        return "No changes were provided in the diff"
-
     project = os.getenv("VERTEX_PROJECT")
     location = os.getenv("VERTEX_LOCATION")
     model = os.getenv("VERTEX_MODEL")
@@ -56,6 +53,9 @@ def generate_ai_summary(prefix: str| None, git_diff: str | None) -> str | None:
     if not service_account_key:
         logging.error("Missing VERTEX_CREDENTIALS environment variable")
         return None
+
+    if not git_diff:
+        return "No changes were provided in the diff"
 
     credentials = service_account.Credentials.from_service_account_info(
         json.loads(service_account_key), scopes=SCOPES,
