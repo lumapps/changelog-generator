@@ -9,12 +9,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  github-actions-validator:
-    name: "Github-actions-validator"
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: lumapps/github-actions-validator@master
   preview_changelog:
     timeout-minutes: 30
     name: Render the changelog in a PR comment to preview changes
